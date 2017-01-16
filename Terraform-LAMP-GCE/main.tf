@@ -64,14 +64,14 @@ resource "google_compute_instance" "redis-server" {
 
   }
 
-  provisioner "local-exec" {
+  provisioner "remote-exec" {
    
-     command = "chmod +x ${var.install_script_dest_path} && sudo ${var.install_script_dest_path}"
+     inline = ["chmod +x ${var.install_script_dest_path} && sudo ${var.install_script_dest_path}"]
   }
 
 
   metadata {
-    ssh-keys = "root:${file("/home/ashwin/.ssh/modables-demo-bucket")}"
+    ssh-keys = "root:${file("/home/ashwin/.ssh/modables-demo-bucket.pub")}"
   }
   
   #metadata_startup_script = "${file("/data/Terraform-LAMP-GCE/InstallRedis.sh")}"
@@ -101,7 +101,7 @@ resource "google_compute_instance" "client" {
   }
 
   metadata {
-    ssh-keys = "root:${file("/home/ashwin/.ssh/modables-demo-bucket")}"
+    ssh-keys = "root:${file("/home/ashwin/.ssh/modables-demo-bucket.pub")}"
   }
   
   service_account {
