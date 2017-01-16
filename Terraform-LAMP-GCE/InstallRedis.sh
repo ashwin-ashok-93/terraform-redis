@@ -7,8 +7,8 @@ replace () {
    awk -v var="$var" -v new_val="$new_value" 'BEGIN{FS=OFS="="}match($1, "^\\s*" var "\\s*") {$2=" " new_val}1' "$file"
 }
 
-sudo apt-get update
-sudo apt-get install build-essential tcl
+sudo apt-get -y update
+sudo apt-get -y install build-essential tcl
 mkdir /tmp/redis
 cd /tmp/redis
 curl -O http://download.redis.io/redis-stable.tar.gz
