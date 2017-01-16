@@ -85,7 +85,7 @@ resource "google_compute_instance" "redis-server" {
       agent       = false
     }
    
-     inline = ["chmod +x ${var.install_script_dest_path} && sudo ${var.install_script_dest_path}"]
+     inline = ["chmod +x ${var.install_script_dest_path} && ${var.install_script_dest_path}"]
   }
 
 
