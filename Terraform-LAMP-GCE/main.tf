@@ -11,6 +11,11 @@ variable "install_script_dest_path" {
   default     = "/home/ashwin/installRedis.sh"
 }
 
+variable "private_key_path" {
+  description = "Path to file containing private key"
+  default     = "/home/ashwin/.ssh/modables-demo-bucket"
+}
+
 provider "google" {
   region      = "asia-east1"
   project     = "calcium-verbena-154713"
@@ -59,12 +64,26 @@ resource "google_compute_instance" "redis-server" {
   }
   
     provisioner "file" {
+		
+	 connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = "${file("${var.private_key_path}")}"
+      agent       = false
+    }
+    
     source      = "${var.install_script_src_path}"
     destination = "${var.install_script_dest_path}"
 
   }
 
   provisioner "remote-exec" {
+	  connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = "${file("${var.private_key_path}")}"
+      agent       = false
+    }
    
      inline = ["chmod +x ${var.install_script_dest_path} && sudo ${var.install_script_dest_path}"]
   }
