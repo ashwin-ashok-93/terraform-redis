@@ -3,12 +3,12 @@
 
 variable "install_script_src_path" {
   description = "Path to install script within this repository"
-  default     = "installRedis.sh"
+  default     = "./InstallRedis.sh"
 }
 
 variable "install_script_dest_path" {
   description = "Path to put the install script on each destination resource"
-  default     = "/home/ashwin/installRedis.sh"
+  default     = "~/InstallRedis.sh"
 }
 
 variable "private_key_path" {
