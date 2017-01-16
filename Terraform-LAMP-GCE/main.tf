@@ -62,34 +62,19 @@ resource "google_compute_instance" "redis-server" {
     source      = "${var.install_script_src_path}"
     destination = "${var.install_script_dest_path}"
 
-    connection {
-      type        = "ssh"
-      user        = "root"
-      private_key = "${file("${file("/home/ashwin/.ssh/ashwin-gcloud-bucket.pub")}")}"
-      agent       = false
-    }
   }
 
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = "root"
-      private_key = "${file("${file("/home/ashwin/.ssh/ashwin-gcloud-bucket.pub")}")}"
-      agent       = false
-    }
-
-    inline = [
-      "chmod +x ${var.install_script_dest_path}",
-      "sudo ${var.install_script_dest_path} ${count.index}",
-    ]
+  provisioner "local-exec" {
+   
+     command = "chmod +x ${var.install_script_dest_path} && sudo ${var.install_script_dest_path}"
   }
 
 
   metadata {
-    ssh-keys = "root:${file("/home/ashwin/.ssh/ashwin-gcloud-bucket.pub")}"
+    ssh-keys = "root:${file("/home/ashwin/.ssh/modables-demo-bucket")}"
   }
   
-  metadata_startup_script = "${file("/data/Terraform-LAMP-GCE/InstallRedis.sh")}"
+  #metadata_startup_script = "${file("/data/Terraform-LAMP-GCE/InstallRedis.sh")}"
 
   service_account {
     scopes = ["https://www.googleapis.com/auth/compute.readonly"]
@@ -116,7 +101,7 @@ resource "google_compute_instance" "client" {
   }
 
   metadata {
-    ssh-keys = "root:${file("/home/ashwin/.ssh/ashwin-gcloud-bucket.pub")}"
+    ssh-keys = "root:${file("/home/ashwin/.ssh/modables-demo-bucket")}"
   }
   
   service_account {
