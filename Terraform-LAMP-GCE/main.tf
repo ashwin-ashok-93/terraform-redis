@@ -45,8 +45,7 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_instance" "redis-server" {
-  count = 1
-  name         = "tf-redis-server-${count.index}"
+  name         = "tf-redis-server"
   machine_type = "f1-micro"
   zone         = "asia-east1-a"
   tags         = ["www-node"]
@@ -101,8 +100,7 @@ resource "google_compute_instance" "redis-server" {
 }
 
 resource "google_compute_instance" "client" {
-  count = 1
-  name         = "tf-client-${count.index}"
+  name         = "tf-client"
   machine_type = "f1-micro"
   zone         = "asia-east1-a"
   tags         = ["www-node"]
