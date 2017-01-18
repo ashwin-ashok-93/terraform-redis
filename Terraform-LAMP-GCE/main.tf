@@ -3,13 +3,29 @@
 
 variable "install_script_src_path" {
   description = "Path to install script within this repository"
-  default     = "./InstallRedis.sh"
+  default     = "/data/Terraform-LAMP-GCE/InstallRedis.sh"
 }
 
 variable "install_script_dest_path" {
   description = "Path to put the install script on each destination resource"
-  default     = "~/InstallRedis.sh"
+  default     = "/tmp/InstallRedis.sh"
 }
+
+variable "client_script_src_path" {
+  description = "Path to install script within this repository"
+  default     = "/data/Terraform-LAMP-GCE/redis-client.py"
+}
+
+variable "client_script_dest_path" {
+  description = "Path to put the install script on each destination resource"
+  default     = "~/redis-client.py"
+}
+
+variable "redis_server_port" {
+  description = "Path to put the install script on each destination resource"
+  default     = 6379
+}
+
 
 variable "private_key_path" {
   description = "Path to file containing private key"
@@ -22,27 +38,8 @@ provider "google" {
   credentials = "${file("credentials.json")}"
 }
 
-resource "google_compute_http_health_check" "default" {
-  name                = "tf-redis-basic-check"
-  request_path        = "/"
-  check_interval_sec  = 1
-  healthy_threshold   = 1
-  unhealthy_threshold = 10
-  timeout_sec         = 1
-}
 
-resource "google_compute_target_pool" "default" {
-  name          = "tf-redis-target-pool"
-  instances     = ["${google_compute_instance.redis-server.*.self_link}",
-                   "${google_compute_instance.client.*.self_link}"]
-  health_checks = ["${google_compute_http_health_check.default.name}"]
-}
 
-resource "google_compute_forwarding_rule" "default" {
-  name       = "tf-redis-forwarding-rule"
-  target     = "${google_compute_target_pool.default.self_link}"
-  port_range = "80"
-}
 
 resource "google_compute_instance" "redis-server" {
   name         = "tf-redis-server"
@@ -58,7 +55,7 @@ resource "google_compute_instance" "redis-server" {
     network = "default"
 
     access_config {
-      # Ephemeral
+    #Ephemeral
     }
   }
   
@@ -70,9 +67,10 @@ resource "google_compute_instance" "redis-server" {
       private_key = "${file("${var.private_key_path}")}"
       agent       = false
     }
-    
-    source      = "${var.install_script_src_path}"
+      source      = "${var.install_script_src_path}"
     destination = "${var.install_script_dest_path}"
+
+ 
 
   }
 
@@ -84,7 +82,7 @@ resource "google_compute_instance" "redis-server" {
       agent       = false
     }
    
-     inline = ["chmod +x ${var.install_script_dest_path} && ${var.install_script_dest_path}"]
+     inline = ["chmod +x ${var.install_script_dest_path} && ${var.install_script_dest_path} "]
   }
 
 
@@ -117,6 +115,31 @@ resource "google_compute_instance" "client" {
     }
   }
 
+ provisioner "file" {
+		
+	 connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = "${file("${var.private_key_path}")}"
+      agent       = false
+    }
+       source      = "${var.client_script_src_path}"
+       destination = "${var.client_script_dest_path}"
+    
+  
+  }
+
+  provisioner "remote-exec" {
+	  connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = "${file("${var.private_key_path}")}"
+      agent       = false
+    }
+   
+     inline = ["chmod +x ${var.client_script_dest_path}",
+                "python2 ${var.client_script_dest_path} ${google_compute_instance.redis-server.network_interface.0.address} ${var.redis_server_port}"]
+  }
   metadata {
     ssh-keys = "root:${file("/home/ashwin/.ssh/modables-demo-bucket.pub")}"
   }

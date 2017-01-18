@@ -9,13 +9,14 @@ replace () {
 
 sudo apt-get -y update
 sudo apt-get -y install build-essential tcl
+
 mkdir /tmp/redis
 cd /tmp/redis
 curl -O http://download.redis.io/redis-stable.tar.gz
 tar xzvf redis-stable.tar.gz
 cd redis-stable
 make
-make test
+#make test
 make install
 cd /tmp/redis
 
@@ -24,6 +25,7 @@ SCRIPT=$(readlink -f $0)
 SCRIPTPATH="/tmp/redis/redis-stable"
 
 REDIS_PORT=6379
+#REDIS_PORT=$1
 REDIS_CONFIG_FILE="/etc/redis/$REDIS_PORT.conf"
 REDIS_DATA_DIR="/var/lib/redis/$REDIS_PORT"
 REDIS_LOG_FILE="/var/log/redis_$REDIS_PORT.log"
@@ -38,8 +40,14 @@ mkdir -p "$REDIS_DATA_DIR"
 cd /tmp/redis/redis-stable
 cp redis.conf ${REDIS_CONFIG_FILE}
 replace ${REDIS_CONFIG_FILE} "port" ${REDIS_PORT}
+replace ${REDIS_CONFIG_FILE} "bind" "0.0.0.0"
 
 cd /tmp/redis/redis-stable/utils
 cp redis_init_script ${INIT_SCRIPT_DEST}
 replace ${INIT_SCRIPT_DEST} "REDISPORT" ${REDIS_PORT}
+
+sudo service redis_${REDIS_PORT} start &
+exit 0
+
+
 
