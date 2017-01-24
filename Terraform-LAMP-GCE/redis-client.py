@@ -50,7 +50,7 @@ def _main_():
 		target.write(str(r.ping()))
 		target.write(str(r.echo("String")))
 		target.write("\n")
-		#print try_command(r.ping)
+                print try_command(r.ping)
 		time.sleep(1)
 	target.close()
 		
